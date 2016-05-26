@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/add_dialog_linlay"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="30dp"
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp"
+    android:orientation="vertical">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/add_dialog_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/add_dialog_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="添加城市"/>
+    </android.support.design.widget.TextInputLayout>
+
+</LinearLayout>

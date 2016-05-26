@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#007db9</color>
+    <color name="colorPrimaryDark">#007db9</color>
+    <color name="colorAccent">#007db9</color>
+    <color name="colorControlNormal">#3fc0ff</color>
+    <color name="drawerArrowToggle">#ffffff</color>
+</resources>

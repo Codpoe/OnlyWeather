@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">仅仅天气</string>
+    <string name="open_drawer">open</string>
+    <string name="close_drawer">close</string>
+</resources>

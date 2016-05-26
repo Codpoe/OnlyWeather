@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:layout="@layout/about_fragment_header"/>
+
+    <PreferenceCategory android:title="关于应用">
+
+        <Preference
+            android:key="introduction"
+            android:title="应用介绍"/>
+
+        <Preference
+            android:key="check_version"
+            android:title="检查更新"/>
+
+        <Preference
+            android:key="star"
+            android:title="点赞"
+            android:summary="不知这款应用能否获得你的 Star ?"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="关于我">
+
+        <Preference
+            android:key="me"
+            android:title="个人信息"/>
+
+        <Preference
+            android:key="support"
+            android:title="支持作者"
+            android:summary="你问我资瓷不资瓷，我当然是资瓷的嘛"/>
+
+        <Preference
+            android:key="feedback"
+            android:title="反馈"
+            android:summary="点击会把我的邮箱复制到剪贴板"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="关于资源">
+
+        <Preference
+            android:key="weather_api"
+            android:title="数据来源"
+            android:summary="感谢和风天气提供的天气服务"/>
+
+        <Preference
+            android:key="image"
+            android:title="图片来源"
+            android:summary="仅仅天气的图片均搜集自 Zedge\n-- 一款高质量的壁纸应用"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="感谢开源">
+
+        <Preference
+            android:key="open_source"
+            android:title="用到的开源库"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

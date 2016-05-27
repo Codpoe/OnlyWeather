@@ -1,4 +1,4 @@
-# OnlyWeather
+# 仅仅天气
 Material Design + RxJava + Retrofit + Glide + Otto
 
 ## 前言

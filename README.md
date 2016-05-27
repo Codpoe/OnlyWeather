@@ -36,8 +36,8 @@ V 1.0.0
 
 ## 感谢开源
 此项目用到的开源库:
-- [Rxjava](https://github.com/ReactiveX/RxJava)
-- [Rxandroid](https://github.com/ReactiveX/RxAndroid)
+- [RxJava](https://github.com/ReactiveX/RxJava)
+- [RxAndroid](https://github.com/ReactiveX/RxAndroid)
 - [Retrofit2](https://github.com/square/retrofit)
 - [Glide](https://github.com/bumptech/glide)
 - [Otto](https://github.com/square/otto)

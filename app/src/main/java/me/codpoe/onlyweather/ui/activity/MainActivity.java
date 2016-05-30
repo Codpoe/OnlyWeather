@@ -3,6 +3,7 @@ package me.codpoe.onlyweather.ui.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -27,29 +28,35 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import me.codpoe.onlyweather.R;
-import me.codpoe.onlyweather.ui.adapter.MainFragmentAdapter;
 import me.codpoe.onlyweather.base.BusProvider;
-import me.codpoe.onlyweather.ui.fragment.BasicFragment;
-import me.codpoe.onlyweather.ui.fragment.MoreFragment;
 import me.codpoe.onlyweather.httpUtil.HttpMethods;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
 import me.codpoe.onlyweather.service.AutoUpdateService;
+import me.codpoe.onlyweather.ui.adapter.MainFragmentAdapter;
+import me.codpoe.onlyweather.ui.fragment.BasicFragment;
+import me.codpoe.onlyweather.ui.fragment.MoreFragment;
+import me.codpoe.onlyweather.util.ScreenShotUtils;
 import me.codpoe.onlyweather.util.VersionUtils;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Codpoe on 2016/5/11.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener
-                                                        , ViewPager.OnTouchListener {
+public class MainActivity extends AppCompatActivity
+        implements View.OnClickListener,
+        ViewPager.OnTouchListener,
+        Toolbar.OnMenuItemClickListener {
 
     private DrawerLayout mMainDrawerLayout;
     private SwipeRefreshLayout mRefreshLayout;
@@ -106,6 +113,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mActionBarDrawerToggle.syncState();
         mMainDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
 
+        // Toolbar
+        mMainToolbar.inflateMenu(R.menu.main_menu);
+        mMainToolbar.setOnMenuItemClickListener(this);
+
         // TabLayout and ViewPager
         tabList = new ArrayList<>();
         fragmentList = new ArrayList<>();
@@ -137,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         /**
-         * Toolbar未折叠时，可刷新
+         * CollapsingToolbar未折叠时，可刷新
          * 折叠后，不可刷新
          */
         mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -165,10 +176,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case R.id.drawer_manager:
                         Intent intent = new Intent(MainActivity.this, ManageActivity.class);
                         startActivity(intent);
-                        break;
-                    case R.id.drawer_add:
-                        Intent intent1 = new Intent(MainActivity.this, AddActivity.class);
-                        startActivity(intent1);
                         break;
                     case R.id.drawer_setting:
                         Intent intent2 = new Intent(MainActivity.this, SettingActivity.class);
@@ -231,6 +238,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMoreFragment = new MoreFragment();
     }
 
+    // menu 点击接口
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.share:
+//                share("", "我正在使用『仅仅天气』，下载地址:http://fir.im/onlyweather");
+                share();
+                break;
+        }
+        return false;
+    }
+
+    // 普通点击接口
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            // 点击 FloatingActionButton
+            case R.id.floating_btn:
+                share();
+                break;
+        }
+    }
+
     /**
      * 从网络获取天气数据并更新 UI
      */
@@ -249,17 +279,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onError(Throwable e) {
                     mProgressDialog.dismiss();
                     mRefreshLayout.setRefreshing(false);
-                    Snackbar.make(mCoordinatorLayout, "刷新失败，请检查网络是否通畅", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout, "刷新失败，请检查网络是否通畅，或者重启应用", Snackbar.LENGTH_SHORT).show();
                     Log.d("MainActivity", e.getMessage());
                 }
 
                 @Override
                 public void onNext(WeatherBean weatherData) {
-                    mMainCollapsingToolbarLayout.setTitle(weatherData.getHeWeatherDataService().get(0).getBasic().getCity());
-                    mMainTmpText.setText(weatherData.getHeWeatherDataService().get(0).getNow().getTmp());
-                    mMainCondText.setText(weatherData.getHeWeatherDataService().get(0).getNow().getCond().getTxt());
-                    mBasicFragment.setWeatherData(weatherData);
-                    mMoreFragment.setWeatherData(weatherData);
+                    mWeatherData = weatherData;
+                    mMainCollapsingToolbarLayout.setTitle(mWeatherData.getHeWeatherDataService().get(0).getBasic().getCity());
+                    mMainTmpText.setText(mWeatherData.getHeWeatherDataService().get(0).getNow().getTmp());
+                    mMainCondText.setText(mWeatherData.getHeWeatherDataService().get(0).getNow().getCond().getTxt());
+                    mBasicFragment.setWeatherData(mWeatherData);
+                    mMoreFragment.setWeatherData(mWeatherData);
+                    setBackgroud(mWeatherData);
                 }
             }, cityName);
         } else {
@@ -269,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * 后台自动更新
+     * 后台自动更新天气
      * @param weatherBean
      */
     @Subscribe
@@ -280,22 +312,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMainCondText.setText(weatherBean.getHeWeatherDataService().get(0).getNow().getCond().getTxt());
         mBasicFragment.setWeatherData(weatherBean);
         mMoreFragment.setWeatherData(weatherBean);
-    }
-
-    // 实现点击接口
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            // 点击 FloatingActionButton
-            case R.id.floating_btn:
-                getWeather();
-                break;
-        }
+        setBackgroud(weatherBean);
     }
 
     /**
-     * 进入 MainActivity 时
-     * 从本地获取并展示天气数据
+     * 进入 MainActivity 时，从本地获取并展示天气数据
      */
     public void firstShow() {
         mProgressDialog = new ProgressDialog(this);
@@ -309,6 +330,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mProgressDialog.dismiss();
             Snackbar.make(mCoordinatorLayout, "暂无数据，请先添加城市", Snackbar.LENGTH_SHORT);
         }
+    }
+
+    /**
+     * 判断当前时间和天气状况，并据此更换背景
+     */
+    public void setBackgroud(WeatherBean weatherData) {
+        Calendar c = Calendar.getInstance();
+        String cond = weatherData.getHeWeatherDataService().get(0).getNow().getCond().getTxt();
+
+        if (cond.contains("雨")) {
+            mMainImg.setImageResource(R.drawable.night_rain);
+        } else if (cond.contains("雪")) {
+            mMainImg.setImageResource(R.drawable.snow);
+        } else if (c.get(Calendar.HOUR_OF_DAY) >= 18 || c.get(Calendar.HOUR_OF_DAY) < 6) {
+            mMainImg.setImageResource(R.drawable.night_fine);
+        } else {
+            mMainImg.setImageResource(R.drawable.morning);
+        }
+
     }
 
     /**
@@ -332,6 +372,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
         return false;
+    }
+
+    /**
+     * 截图，并分享
+     */
+    public void share() {
+        Observable.create(new Observable.OnSubscribe<File>() {
+            @Override
+            public void call(Subscriber<? super File> subscriber) {
+                File file = new File(ScreenShotUtils.shot(MainActivity.this));
+                subscriber.onNext(file);
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<File>() {
+                    @Override
+                    public void call(File file) {
+                        Intent intent = new Intent(Intent.ACTION_SEND);
+                        if (file != null && file.exists() && file.isFile()) {
+                            intent.setType("image/png");
+                            Uri uri = Uri.fromFile(file);
+                            intent.putExtra(Intent.EXTRA_STREAM, uri);
+                            Log.d("MainActivity", "share_2");
+                            startActivity(Intent.createChooser(intent, "分享"));
+                        }
+                    }
+                    
+                });
     }
 
 }

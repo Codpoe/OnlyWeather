@@ -12,11 +12,6 @@
         android:icon="@drawable/ic_location_city_black_24dp"
         android:title="管理城市"/>
 
-    <item
-        android:id="@+id/drawer_add"
-        android:icon="@drawable/ic_playlist_add_black_24dp"
-        android:title="添加城市"/>
-
     <item android:title="仅仅天气">
         <menu>
             <item

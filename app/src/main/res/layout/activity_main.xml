@@ -21,14 +21,12 @@
                 android:id="@+id/main_app_bar"
                 app:theme="@style/AppTheme.AppBarOverlay"
                 android:layout_width="match_parent"
-                android:layout_height="420dp"
-                android:fitsSystemWindows="true">
+                android:layout_height="420dp">
 
                 <android.support.design.widget.CollapsingToolbarLayout
                     android:id="@+id/main_collapsing_toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:fitsSystemWindows="true"
                     app:contentScrim="@color/colorPrimary"
                     app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
                     app:expandedTitleGravity="bottom"
@@ -41,9 +39,9 @@
                         android:layout_height="match_parent"
                         android:fitsSystemWindows="true"
                         app:layout_collapseMode="parallax"
-                        app:layout_collapseParallaxMultiplier="0.5"
+                        app:layout_collapseParallaxMultiplier="0.7"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/night_wallpaper"/>
+                        android:src="@drawable/morning"/>
 
                     <TextView
                         android:id="@+id/main_tmp_text"
@@ -52,8 +50,8 @@
                         android:layout_gravity="center"
                         android:layout_marginBottom="40dp"
                         app:layout_collapseMode="parallax"
-                        app:layout_collapseParallaxMultiplier="0.5"
-                        android:textSize="125sp"
+                        app:layout_collapseParallaxMultiplier="0.7"
+                        android:textSize="105sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/white"/>
 
@@ -64,8 +62,8 @@
                         android:layout_gravity="center"
                         android:layout_marginTop="30dp"
                         app:layout_collapseMode="parallax"
-                        app:layout_collapseParallaxMultiplier="0.7"
-                        android:textSize="20sp"
+                        app:layout_collapseParallaxMultiplier="0.3"
+                        android:textSize="22sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/white"/>
 
@@ -74,6 +72,7 @@
                         app:popupTheme="@style/AppTheme.PopupOverlay"
                         android:layout_width="match_parent"
                         android:layout_height="?attr/actionBarSize"
+                        android:layout_marginTop="26dp"
                         app:layout_collapseMode="pin">
                     </android.support.v7.widget.Toolbar>
                 </android.support.design.widget.CollapsingToolbarLayout>

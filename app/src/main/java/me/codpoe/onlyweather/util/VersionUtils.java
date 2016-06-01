@@ -90,7 +90,7 @@ public class VersionUtils {
         new AlertDialog.Builder(context)
                 .setTitle("发现新版本")
                 .setMessage("最新版本: " + versionBean.getVersionShort() + "\n" +
-                            "新版本大小: " + versionBean.getBinary().getFsize() / 1024 / 1024 + " M\n\n" +
+                            "新版本大小: " + (float)versionBean.getBinary().getFsize() / 1024 / 1024 + " M\n\n" +
                             versionBean.getChangelog())
                 .setPositiveButton("下载", new DialogInterface.OnClickListener() {
                     @Override

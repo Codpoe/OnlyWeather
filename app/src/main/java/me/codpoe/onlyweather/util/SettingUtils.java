@@ -30,7 +30,6 @@ public class SettingUtils {
     public void setIsAutoUpdate(boolean b) {
         mPrefs.edit().putBoolean("is_auto_update", b).apply();
     }
-
     public boolean getIsAutoUpdate() {
         return mPrefs.getBoolean("is_auto_update", true);
     }
@@ -39,8 +38,15 @@ public class SettingUtils {
     public void setAutoUpdate(int i) {
         mPrefs.edit().putInt("auto_update", i).apply();
     }
-
     public int getAutoUpdate() {
         return mPrefs.getInt("auto_update", 0);
+    }
+
+    // 是否显示黄历卡片
+    public void setIsShowHuangLi(boolean b) {
+        mPrefs.edit().putBoolean("is_show_huang_li", b).apply();
+    }
+    public boolean getIsShowHuangLi() {
+        return mPrefs.getBoolean("is_show_huang_li", false);
     }
 }

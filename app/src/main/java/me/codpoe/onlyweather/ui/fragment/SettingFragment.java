@@ -20,6 +20,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 
     private CheckBoxPreference mIsAutoUpdate;
     private ListPreference mChangeUpdate;
+    private CheckBoxPreference mIsShowHuangLi;
 
     private SharedPreferences mPrefs;
 
@@ -31,6 +32,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         Log.d("setting", "0");
         mIsAutoUpdate = (CheckBoxPreference) findPreference("is_auto_update");
         mChangeUpdate = (ListPreference) findPreference("auto_update");
+        mIsShowHuangLi = (CheckBoxPreference) findPreference("is_show_huang_li");
 
         mIsAutoUpdate.setOnPreferenceChangeListener(this);
 
@@ -39,6 +41,8 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         Log.d("setting", "1");
         mChangeUpdate.setOnPreferenceChangeListener(this);
 
+        mIsShowHuangLi.setOnPreferenceChangeListener(this);
+
     }
 
     @Override
@@ -46,12 +50,13 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         if (preference.getKey().equals("is_auto_update")) {
             SettingUtils.getInstance().setIsAutoUpdate(Boolean.parseBoolean(String.valueOf(newValue)));
             getActivity().startService(new Intent(getActivity(), AutoUpdateService.class));
-        }
-        if(preference.getKey().equals("auto_update")) {
+        } else if (preference.getKey().equals("auto_update")) {
             SettingUtils.getInstance().setAutoUpdate(Integer.parseInt(String.valueOf(newValue)));
             mChangeUpdate.setSummary(SettingUtils.getInstance().getAutoUpdate() == 0 ?
                     "从不自动更新" : "每 " + SettingUtils.getInstance().getAutoUpdate() + " 小时");
             getActivity().startService(new Intent(getActivity(), AutoUpdateService.class));
+        } else if (preference.getKey().equals("is_show_huang_li")) {
+            SettingUtils.getInstance().setIsShowHuangLi(Boolean.parseBoolean(String.valueOf(newValue)));
         }
         return true;
     }

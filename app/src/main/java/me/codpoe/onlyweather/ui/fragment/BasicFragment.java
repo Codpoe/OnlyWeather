@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import me.codpoe.onlyweather.R;
+import me.codpoe.onlyweather.model.entity.HuangLiBean;
 import me.codpoe.onlyweather.ui.adapter.BasicRvAdapter;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
 
@@ -43,15 +44,10 @@ public class BasicFragment extends Fragment{
     }
 
     // 获取从 MainActivity 传来的 WeatherBean 数据，并给 RecyclerView 设置 Adapter
-    public void setWeatherData(WeatherBean weatherData) {
-        if (mWeatherData == null) {
+    public void setWeatherData(WeatherBean weatherData, HuangLiBean huangLiData) {
             mWeatherData = weatherData;
-            mBasicRvAdapter = new BasicRvAdapter(getContext(), mWeatherData);
+            mBasicRvAdapter = new BasicRvAdapter(getContext(), mWeatherData, huangLiData);
             mBasicRecyclerView.setAdapter(mBasicRvAdapter);
-        } else {
-            mWeatherData = weatherData;
-            mBasicRvAdapter.notifyDataSetChanged();
-        }
     }
 
 }

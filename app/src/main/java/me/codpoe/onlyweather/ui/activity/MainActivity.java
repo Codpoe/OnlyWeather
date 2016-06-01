@@ -37,12 +37,14 @@ import java.util.concurrent.TimeUnit;
 import me.codpoe.onlyweather.R;
 import me.codpoe.onlyweather.base.BusProvider;
 import me.codpoe.onlyweather.httpUtil.HttpMethods;
+import me.codpoe.onlyweather.model.entity.HuangLiBean;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
 import me.codpoe.onlyweather.service.AutoUpdateService;
 import me.codpoe.onlyweather.ui.adapter.MainFragmentAdapter;
 import me.codpoe.onlyweather.ui.fragment.BasicFragment;
 import me.codpoe.onlyweather.ui.fragment.MoreFragment;
 import me.codpoe.onlyweather.util.ScreenShotUtils;
+import me.codpoe.onlyweather.util.SettingUtils;
 import me.codpoe.onlyweather.util.VersionUtils;
 import rx.Observable;
 import rx.Subscriber;
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity
     private MainFragmentAdapter mMainFragmentAdapter;
 
     private WeatherBean mWeatherData;
+    private HuangLiBean mHuangLiData;
 
     private boolean mIsExit = false;
 
@@ -270,9 +273,7 @@ public class MainActivity extends AppCompatActivity
             HttpMethods.getInstance().getWeatherData(new Subscriber<WeatherBean>() {
                 @Override
                 public void onCompleted() {
-                    mProgressDialog.dismiss();
-                    mRefreshLayout.setRefreshing(false);
-                    Snackbar.make(mCoordinatorLayout, " 刷新成功", Snackbar.LENGTH_SHORT).show();
+
                 }
 
                 @Override
@@ -286,10 +287,10 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onNext(WeatherBean weatherData) {
                     mWeatherData = weatherData;
+                    getHuangLi();
                     mMainCollapsingToolbarLayout.setTitle(mWeatherData.getHeWeatherDataService().get(0).getBasic().getCity());
                     mMainTmpText.setText(mWeatherData.getHeWeatherDataService().get(0).getNow().getTmp());
                     mMainCondText.setText(mWeatherData.getHeWeatherDataService().get(0).getNow().getCond().getTxt());
-                    mBasicFragment.setWeatherData(mWeatherData);
                     mMoreFragment.setWeatherData(mWeatherData);
                     setBackgroud(mWeatherData);
                 }
@@ -307,14 +308,48 @@ public class MainActivity extends AppCompatActivity
     @Subscribe
     public void getWeatherFromService(WeatherBean weatherBean) {
         Log.d("MainActivity", "auto update really work!");
+        getHuangLi();
         mMainCollapsingToolbarLayout.setTitle(weatherBean.getHeWeatherDataService().get(0).getBasic().getCity());
         mMainTmpText.setText(weatherBean.getHeWeatherDataService().get(0).getNow().getTmp());
         mMainCondText.setText(weatherBean.getHeWeatherDataService().get(0).getNow().getCond().getTxt());
-        mBasicFragment.setWeatherData(weatherBean);
         mMoreFragment.setWeatherData(weatherBean);
         setBackgroud(weatherBean);
     }
 
+    /**
+     * 从网络获取黄历数据并更新 UI
+     */
+    public void getHuangLi() {
+        if (SettingUtils.getInstance().getIsShowHuangLi()) {
+            HttpMethods.getInstance().getHuangLiData(new Subscriber<HuangLiBean>() {
+                @Override
+                public void onCompleted() {
+                    mProgressDialog.dismiss();
+                    mRefreshLayout.setRefreshing(false);
+                    Snackbar.make(mCoordinatorLayout, " 刷新成功", Snackbar.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    mProgressDialog.dismiss();
+                    mRefreshLayout.setRefreshing(false);
+                    Snackbar.make(mCoordinatorLayout, "刷新失败，请检查网络是否通畅，或者重启应用", Snackbar.LENGTH_SHORT).show();
+                    Log.d("MainActivity", e.getMessage());
+                }
+
+                @Override
+                public void onNext(HuangLiBean huangLiBean) {
+                    mHuangLiData = huangLiBean;
+                    mBasicFragment.setWeatherData(mWeatherData, mHuangLiData);
+                }
+            });
+        } else {
+            mBasicFragment.setWeatherData(mWeatherData, null);
+            mProgressDialog.dismiss();
+            mRefreshLayout.setRefreshing(false);
+            Snackbar.make(mCoordinatorLayout, " 刷新成功", Snackbar.LENGTH_SHORT).show();
+        }
+    }
     /**
      * 进入 MainActivity 时，从本地获取并展示天气数据
      */

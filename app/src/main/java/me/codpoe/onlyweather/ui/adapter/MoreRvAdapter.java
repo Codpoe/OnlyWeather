@@ -44,7 +44,7 @@ public class MoreRvAdapter extends RecyclerView.Adapter {
 
         ((MoreViewHolder) holder).mCondText.setText(
                 String.format("%s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
-                                                    .get(position).getCond().getTxtD())
+                        .get(position).getCond().getTxtD())
         );
         ((MoreViewHolder) holder).mTmpText.setText(
                 String.format("%s ~ %s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
@@ -53,23 +53,23 @@ public class MoreRvAdapter extends RecyclerView.Adapter {
                                 .get(position).getTmp().getMax())
         );
 
-                ((MoreViewHolder) holder).mHumText.setText(
+        ((MoreViewHolder) holder).mHumText.setText(
                 String.format("湿度: %s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
-                                .get(position).getHum())
+                        .get(position).getHum())
         );
         ((MoreViewHolder) holder).mWindText.setText(
                 String.format("%s %s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
-                                            .get(position).getWind().getDir(),
-                                    mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
-                                            .get(position).getWind().getSc())
+                                .get(position).getWind().getDir(),
+                        mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
+                                .get(position).getWind().getSc())
         );
         ((MoreViewHolder) holder).mRainText.setText(
                 String.format("降水概率: %s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
-                                            .get(position).getPop())
+                        .get(position).getPop())
         );
         ((MoreViewHolder) holder).mVisText.setText(
                 String.format("能见度: %s km", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
-                                            .get(position).getVis())
+                        .get(position).getVis())
         );
     }
 

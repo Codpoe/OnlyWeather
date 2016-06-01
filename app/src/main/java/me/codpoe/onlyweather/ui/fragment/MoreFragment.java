@@ -45,13 +45,9 @@ public class MoreFragment extends Fragment {
     }
 
     public void setWeatherData(WeatherBean weatherData) {
-        if (mWeatherData == null) {
             mWeatherData = weatherData;
             mMoreRvAdapter = new MoreRvAdapter(getContext(), mWeatherData);
             mMoreRecyclerView.setAdapter(mMoreRvAdapter);
-        } else {
-            mWeatherData = weatherData;
-            mMoreRvAdapter.notifyDataSetChanged();
-        }
+
     }
 }

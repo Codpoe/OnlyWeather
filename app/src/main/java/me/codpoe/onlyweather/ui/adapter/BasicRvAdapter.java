@@ -2,6 +2,7 @@ package me.codpoe.onlyweather.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
 import me.codpoe.onlyweather.R;
+import me.codpoe.onlyweather.model.entity.HuangLiBean;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
 import me.codpoe.onlyweather.util.DateToWeek;
 
@@ -21,16 +23,38 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public static final int TYPE_ZERO = 0;
     public static final int TYPE_ONE = 1;
-    public static  final int TYPE_TWO = 2;
+    public static final int TYPE_TWO = 2;
+    public static final int TYPE_THREE = 3;
     public static final String IMG_URL = "http://files.heweather.com/cond_icon/";
 
     private Context mContext;
     private WeatherBean mWeatherData;
+    private HuangLiBean mHuangLiData;
 
     // 构造方法
-    public BasicRvAdapter(Context context, WeatherBean weatherData) {
+    public BasicRvAdapter(Context context, WeatherBean weatherData, HuangLiBean huangLiData) {
         mContext = context;
         mWeatherData = weatherData;
+        mHuangLiData = huangLiData;
+    }
+
+    /**
+     * 获取 item 的数目
+     * 判断 status 是否为空
+     * 非空则返回 3，否则返回 0
+     * @return item 的数目
+     */
+    @Override
+    public int getItemCount() {
+        if (mWeatherData.getHeWeatherDataService().get(0).getBasic().getCnty().equals("中国")) {
+            if (mHuangLiData != null) {
+                return 4;
+            } else {
+                return 3;
+            }
+        } else {
+            return 2;
+        }
     }
 
     /**
@@ -40,15 +64,22 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      */
     @Override
     public int getItemViewType(int position) {
-        if(position == 0) {
+        if (position == 0) {
+            Log.d("BasicRvAdapter", "0");
             return TYPE_ZERO;
         }
-        if(position == 1) {
+        if (position == 1) {
+            Log.d("BasicRvAdapter", "1");
             return TYPE_ONE;
         }
-        if(position == 2) {
+        if (position == 2) {
+            Log.d("BasicRvAdapter", "3.1");
             return TYPE_TWO;
         }
+        if (position == 3) {
+            return TYPE_THREE;
+        }
+
         return super.getItemViewType(position);
     }
 
@@ -60,17 +91,24 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      */
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if(viewType == TYPE_ZERO) {
+        if (viewType == TYPE_ZERO) {
+            Log.d("BasicRvAdapter", "create 0");
             return new FutureWeatherViewHolder(LayoutInflater.from(mContext)
                     .inflate(R.layout.basic_item_0, parent, false));
         }
-        if(viewType == TYPE_ONE) {
+        if (viewType == TYPE_ONE) {
+            Log.d("BasicRvAdapter", "create 1");
             return new NowWeatherViewHolder(LayoutInflater.from(mContext)
                     .inflate(R.layout.basic_item_1, parent, false));
         }
-        if(viewType == TYPE_TWO) {
+        if (viewType == TYPE_TWO) {
+            Log.d("BasicRvAdapter", "create 2");
             return new SuggestionViewHolder(LayoutInflater.from(mContext)
                     .inflate(R.layout.basic_item_2, parent, false));
+        }
+        if (viewType == TYPE_THREE) {
+            return new HuangLiViewHolder(LayoutInflater.from(mContext)
+                    .inflate(R.layout.basic_item_3, parent, false));
         }
         return null;
     }
@@ -83,7 +121,9 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        if(holder instanceof FutureWeatherViewHolder) {
+        // item 0, 未来几天的天气
+        if (holder instanceof FutureWeatherViewHolder) {
+            Log.d("BasicRvAdapter", "future");
 //            try {
 //                for(int i = 0; i < 5; i ++) {
 //                    ((FutureWeatherViewHolder) holder).mDailyDateTexts[i].setText(
@@ -104,9 +144,7 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 //            }
 
             try {
-                ((FutureWeatherViewHolder) holder).mDailyWeek0Text.setText(
-                        DateToWeek.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(0).getDate())
-                );
+                ((FutureWeatherViewHolder) holder).mDailyWeek0Text.setText("今天");
                 ((FutureWeatherViewHolder) holder).mDailyWeek1Text.setText(
                         DateToWeek.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(1).getDate())
                 );
@@ -169,7 +207,9 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         }
 
-        if(holder instanceof NowWeatherViewHolder) {
+        // 当前的天气详情
+        if (holder instanceof NowWeatherViewHolder) {
+            Log.d("BasicRvAdapter", "now");
             ((NowWeatherViewHolder) holder).mFlText.setText(
                     String.format("体感温度: %s", mWeatherData.getHeWeatherDataService().get(0).getNow().getFl()));
 
@@ -196,9 +236,12 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             ((NowWeatherViewHolder) holder).mVisText.setText(
                     String.format("能见度: %s km", mWeatherData.getHeWeatherDataService().get(0).getNow().getVis()));
+
         }
 
-        if(holder instanceof SuggestionViewHolder) {
+        // 生活建议，国外天气无此字段
+        if (holder instanceof SuggestionViewHolder) {
+            Log.d("BasicRvAdapter", "suggestion");
             ((SuggestionViewHolder) holder).mDrsgText.setText(
                     String.format("穿衣: %s", mWeatherData.getHeWeatherDataService().get(0).getSuggestion().getDrsg().getBrf()));
 
@@ -216,19 +259,24 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             ((SuggestionViewHolder) holder).mUvText.setText(
                     String.format("紫外线: %s", mWeatherData.getHeWeatherDataService().get(0).getSuggestion().getUv().getBrf()));
+
         }
 
-    }
+        // 黄历
+        if (holder instanceof HuangLiViewHolder) {
+            ((HuangLiViewHolder) holder).mYangYinLiText.setText(
+                    String.format("%s\t%s", mHuangLiData.getResult().getYangli(), mHuangLiData.getResult().getYinli()));
+            ((HuangLiViewHolder) holder).mYiText.setText(mHuangLiData.getResult().getYi());
+            ((HuangLiViewHolder) holder).mJiText.setText(mHuangLiData.getResult().getJi());
+            ((HuangLiViewHolder) holder).mWuXingText.setText(mHuangLiData.getResult().getWuxing());
+            ((HuangLiViewHolder) holder).mBaiJiText.setText(
+                    String.format("%s\n%s",
+                                    mHuangLiData.getResult().getBaiji().substring(0,8),
+                                    mHuangLiData.getResult().getBaiji().substring(9))
+            );
+            ((HuangLiViewHolder) holder).mChongShaText.setText(mHuangLiData.getResult().getChongsha());
+        }
 
-    /**
-     * 获取 item 的数目
-     * 判断 status 是否为空
-     * 非空则返回 3，否则返回 0
-     * @return item 的数目
-     */
-    @Override
-    public int getItemCount() {
-        return 3;
     }
 
     public void updateData(WeatherBean weatherData) {
@@ -344,6 +392,30 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mTravText = (TextView) itemView.findViewById(R.id.trav_text);
             mComfText = (TextView) itemView.findViewById(R.id.comf_text);
             mUvText = (TextView) itemView.findViewById(R.id.uv_text);
+        }
+    }
+
+    /**
+     * ViewHolder
+     * 黄历
+     */
+    class HuangLiViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView mYangYinLiText;
+        private TextView mYiText;
+        private TextView mJiText;
+        private TextView mWuXingText;
+        private TextView mBaiJiText;
+        private TextView mChongShaText;
+
+        public HuangLiViewHolder(View itemView) {
+            super(itemView);
+            mYangYinLiText = (TextView) itemView.findViewById(R.id.yang_yin_li_text);
+            mYiText = (TextView) itemView.findViewById(R.id.yi_text);
+            mJiText = (TextView) itemView.findViewById(R.id.ji_text);
+            mWuXingText = (TextView) itemView.findViewById(R.id.wu_xing_text);
+            mBaiJiText = (TextView)itemView.findViewById(R.id.bai_ji_text);
+            mChongShaText = (TextView) itemView.findViewById(R.id.chong_sha_text);
         }
     }
 

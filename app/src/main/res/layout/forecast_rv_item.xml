@@ -4,12 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
     app:cardElevation="2dp"
     app:cardCornerRadius="4dp"
+    app:contentPadding="10dp"
     android:clickable="true"
-    android:foreground="?attr/selectableItemBackground"
-    app:contentPadding="10dp">
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,10 +23,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="3"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginRight="10dp">
 
             <TextView
-                android:id="@+id/more_date_text"
+                android:id="@+id/forecast_date_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -33,7 +37,7 @@
                 android:text="周日"/>
 
             <TextView
-                android:id="@+id/more_cond_text"
+                android:id="@+id/forecast_cond_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -43,7 +47,7 @@
                 android:text="多云"/>
 
             <TextView
-                android:id="@+id/more_tmp_text"
+                android:id="@+id/forecast_tmp_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -97,7 +101,7 @@
                 android:layout_marginTop="6dp">
 
                 <TextView
-                    android:id="@+id/more_hum_text"
+                    android:id="@+id/forecast_hum_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -106,7 +110,7 @@
                     android:text="湿度: 32"/>
 
                 <TextView
-                    android:id="@+id/more_wind_text"
+                    android:id="@+id/forecast_wind_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -148,7 +152,7 @@
                 android:layout_marginTop="6dp">
 
                 <TextView
-                    android:id="@+id/more_rain_text"
+                    android:id="@+id/forecast_rain_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -157,7 +161,7 @@
                     android:text="降水概率: 32"/>
 
                 <TextView
-                    android:id="@+id/more_vis_text"
+                    android:id="@+id/forecast_vis_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

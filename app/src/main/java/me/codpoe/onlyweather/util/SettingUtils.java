@@ -42,11 +42,35 @@ public class SettingUtils {
         return mPrefs.getInt("auto_update", 0);
     }
 
+    // 通知栏天气
+    public void setIsShowNotification(boolean b) {
+        mPrefs.edit().putBoolean("is_show_notification", b).apply();
+    }
+    public boolean getIsShowNotification() {
+        return mPrefs.getBoolean("is_show_notification", true);
+    }
+
     // 是否显示黄历卡片
     public void setIsShowHuangLi(boolean b) {
         mPrefs.edit().putBoolean("is_show_huang_li", b).apply();
     }
     public boolean getIsShowHuangLi() {
         return mPrefs.getBoolean("is_show_huang_li", false);
+    }
+
+    // 是否显示星座卡片
+    public void setIsShowCons(boolean b) {
+        mPrefs.edit().putBoolean("is_show_cons", b).apply();
+    }
+    public boolean getIsShowCons() {
+        return mPrefs.getBoolean("is_show_cons", false);
+    }
+
+    // 选择星座
+    public void setSelectedCons(String s) {
+        mPrefs.edit().putString("selected_cons", s).apply();
+    }
+    public String getSelectedCons() {
+        return mPrefs.getString("selected_cons", "白羊座");
     }
 }

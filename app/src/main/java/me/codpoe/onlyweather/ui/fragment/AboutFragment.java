@@ -50,6 +50,11 @@ public class AboutFragment extends PreferenceFragment implements Preference.OnPr
 
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
     public void findPreferences() {
         mIntroductionPref = findPreference("introduction");
         mCheckVersionPref = findPreference("check_version");
@@ -57,8 +62,8 @@ public class AboutFragment extends PreferenceFragment implements Preference.OnPr
         mMePref = findPreference("me");
         mSupportPref = findPreference("support");
         mFeedbackPref = findPreference("feedback");
-        mWeatherApiPref = findPreference("weather_api");
-        mImagePref = findPreference("image");
+        mWeatherApiPref = findPreference("data_source");
+        mImagePref = findPreference("img_source");
         mOpenSourcePref = findPreference("open_source");
     }
 
@@ -85,15 +90,11 @@ public class AboutFragment extends PreferenceFragment implements Preference.OnPr
                 clipboardManager.setPrimaryClip(ClipData.newPlainText(null, "codpoe.me@gmail.com"));
                 Snackbar.make(getView(), "复制成功", Snackbar.LENGTH_SHORT).show();
                 break;
-            case "weather_api":
-                Uri uri = Uri.parse("http://heweather.com/");
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setData(uri);
-                getActivity().startActivity(intent);
+            case "data_source":
+                DialogUtils.showDataSource(getActivity());
                 break;
-            case "image":
-                Uri uri1 = Uri.parse("http://www.zedge.net/");
+            case "img_source":
+                Uri uri1 = Uri.parse("http://www.coolapk.com/apk/com.backdrops.wallpapers");
                 Intent intent1 = new Intent();
                 intent1.setAction(Intent.ACTION_VIEW);
                 intent1.setData(uri1);

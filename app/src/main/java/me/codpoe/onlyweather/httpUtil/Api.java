@@ -1,5 +1,6 @@
 package me.codpoe.onlyweather.httpUtil;
 
+import me.codpoe.onlyweather.model.entity.ConstellationBean;
 import me.codpoe.onlyweather.model.entity.HuangLiBean;
 import me.codpoe.onlyweather.model.entity.VersionBean;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
@@ -25,5 +26,8 @@ public interface Api {
     // 检查更新
     @GET("http://api.fir.im/apps/latest/57470049e75e2d632c000022")
     Observable<VersionBean> getVersionData(@Query("api_token") String apiToken);
+
+    @GET("http://web.juhe.cn:8080/constellation/getAll")
+    Observable<ConstellationBean> getConstellation(@Query("consName") String consName, @Query("type") String type, @Query("key") String key);
 
 }

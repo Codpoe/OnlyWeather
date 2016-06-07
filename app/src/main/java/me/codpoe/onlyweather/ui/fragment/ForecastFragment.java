@@ -9,19 +9,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
 import me.codpoe.onlyweather.R;
-import me.codpoe.onlyweather.ui.adapter.MoreRvAdapter;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
+import me.codpoe.onlyweather.ui.adapter.ForecastRvAdapter;
 
 /**
  * Created by Codpoe on 2016/5/13.
  */
-public class MoreFragment extends Fragment {
+public class ForecastFragment extends Fragment {
 
     private View view;
 
     private RecyclerView mMoreRecyclerView;
-    private MoreRvAdapter mMoreRvAdapter;
+    private ForecastRvAdapter mForecastRvAdapter;
 
     private WeatherBean mWeatherData;
 
@@ -33,10 +34,10 @@ public class MoreFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_more, container, false);
+        view = inflater.inflate(R.layout.fragment_forecast, container, false);
 
         // 获取控件的引用
-        mMoreRecyclerView = (RecyclerView) view.findViewById(R.id.main_more_rv);
+        mMoreRecyclerView = (RecyclerView) view.findViewById(R.id.main_forecast_rv);
 
         // RecyclerView
         mMoreRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -44,10 +45,16 @@ public class MoreFragment extends Fragment {
         return view;
     }
 
-    public void setWeatherData(WeatherBean weatherData) {
-            mWeatherData = weatherData;
-            mMoreRvAdapter = new MoreRvAdapter(getContext(), mWeatherData);
-            mMoreRecyclerView.setAdapter(mMoreRvAdapter);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 
+    public void setWeatherData(WeatherBean weatherData) {
+        mWeatherData = weatherData;
+        mForecastRvAdapter = new ForecastRvAdapter(getContext(), mWeatherData);
+        ScaleInAnimationAdapter scaleAdapter= new ScaleInAnimationAdapter(mForecastRvAdapter);
+        scaleAdapter.setFirstOnly(false);
+        mMoreRecyclerView.setAdapter(scaleAdapter);
     }
 }

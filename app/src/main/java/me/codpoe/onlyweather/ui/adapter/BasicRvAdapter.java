@@ -7,14 +7,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
 import me.codpoe.onlyweather.R;
+import me.codpoe.onlyweather.model.entity.ConstellationBean;
 import me.codpoe.onlyweather.model.entity.HuangLiBean;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
-import me.codpoe.onlyweather.util.DateToWeek;
+import me.codpoe.onlyweather.util.Utils;
 
 /**
  * Created by Codpoe on 2016/5/13.
@@ -25,17 +27,20 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public static final int TYPE_ONE = 1;
     public static final int TYPE_TWO = 2;
     public static final int TYPE_THREE = 3;
+    public static final int TYPE_FOUR = 4;
     public static final String IMG_URL = "http://files.heweather.com/cond_icon/";
 
     private Context mContext;
     private WeatherBean mWeatherData;
     private HuangLiBean mHuangLiData;
+    private ConstellationBean mConstellationData;
 
     // 构造方法
-    public BasicRvAdapter(Context context, WeatherBean weatherData, HuangLiBean huangLiData) {
+    public BasicRvAdapter(Context context, WeatherBean weatherData, HuangLiBean huangLiData, ConstellationBean constellationData) {
         mContext = context;
         mWeatherData = weatherData;
         mHuangLiData = huangLiData;
+        mConstellationData = constellationData;
     }
 
     /**
@@ -46,12 +51,20 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      */
     @Override
     public int getItemCount() {
-        if (mWeatherData.getHeWeatherDataService().get(0).getBasic().getCnty().equals("中国")) {
-            if (mHuangLiData != null) {
+
+        if (mWeatherData != null && mWeatherData.getHeWeatherDataService().get(0).getBasic().getCnty().equals("中国")
+                && !mWeatherData.getHeWeatherDataService().get(0).getBasic().getCity().equals("浦东")) {
+            if (mHuangLiData != null && mConstellationData != null) {
+                return 5;
+            } else if (mHuangLiData != null || mConstellationData != null) {
                 return 4;
             } else {
                 return 3;
             }
+        } else if (mHuangLiData != null && mConstellationData != null) {
+            return 4;
+        } else if (mHuangLiData != null || mConstellationData != null) {
+            return 3;
         } else {
             return 2;
         }
@@ -65,19 +78,35 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public int getItemViewType(int position) {
         if (position == 0) {
-            Log.d("BasicRvAdapter", "0");
             return TYPE_ZERO;
         }
         if (position == 1) {
-            Log.d("BasicRvAdapter", "1");
             return TYPE_ONE;
         }
         if (position == 2) {
-            Log.d("BasicRvAdapter", "3.1");
-            return TYPE_TWO;
+            if (mWeatherData.getHeWeatherDataService().get(0).getBasic().getCnty().equals("中国")
+                    && !mWeatherData.getHeWeatherDataService().get(0).getBasic().getCity().equals("浦东")) {
+                return TYPE_TWO;
+            } else if (mHuangLiData != null) {
+                return TYPE_THREE;
+            } else {
+                return TYPE_FOUR;
+            }
         }
         if (position == 3) {
-            return TYPE_THREE;
+            if (mWeatherData.getHeWeatherDataService().get(0).getBasic().getCnty().equals("中国")
+                    && !mWeatherData.getHeWeatherDataService().get(0).getBasic().getCity().equals("浦东")) {
+                if (mHuangLiData != null) {
+                    return TYPE_THREE;
+                } else {
+                    return TYPE_FOUR;
+                }
+            } else {
+                return TYPE_FOUR;
+            }
+        }
+        if (position == 4) {
+            return TYPE_FOUR;
         }
 
         return super.getItemViewType(position);
@@ -109,6 +138,10 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (viewType == TYPE_THREE) {
             return new HuangLiViewHolder(LayoutInflater.from(mContext)
                     .inflate(R.layout.basic_item_3, parent, false));
+        }
+        if (viewType == TYPE_FOUR) {
+            return new ConstellationViewHolder(LayoutInflater.from(mContext)
+                    .inflate(R.layout.basic_item_4, parent, false));
         }
         return null;
     }
@@ -146,16 +179,16 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             try {
                 ((FutureWeatherViewHolder) holder).mDailyWeek0Text.setText("今天");
                 ((FutureWeatherViewHolder) holder).mDailyWeek1Text.setText(
-                        DateToWeek.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(1).getDate())
+                        Utils.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(1).getDate())
                 );
                 ((FutureWeatherViewHolder) holder).mDailyWeek2Text.setText(
-                        DateToWeek.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(2).getDate())
+                        Utils.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(2).getDate())
                 );
                 ((FutureWeatherViewHolder) holder).mDailyWeek3Text.setText(
-                        DateToWeek.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(3).getDate())
+                        Utils.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(3).getDate())
                 );
                 ((FutureWeatherViewHolder) holder).mDailyWeek4Text.setText(
-                        DateToWeek.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(4).getDate())
+                        Utils.dateToWeek(mWeatherData.getHeWeatherDataService().get(0).getDailyForecast().get(4).getDate())
                 );
             } catch (Exception e) {
                 e.printStackTrace();
@@ -277,6 +310,26 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ((HuangLiViewHolder) holder).mChongShaText.setText(mHuangLiData.getResult().getChongsha());
         }
 
+        // 星座
+        if (holder instanceof ConstellationViewHolder) {
+            ((ConstellationViewHolder) holder).mConsImg.setImageResource(Utils.getConsImg(mConstellationData.getName()));
+            ((ConstellationViewHolder) holder).mConsNameText.setText(mConstellationData.getName());
+            ((ConstellationViewHolder) holder).mConsSummaryText.setText(mConstellationData.getSummary());
+            ((ConstellationViewHolder) holder).mAllRating.setRating(Utils.getRatingFromPercent(mConstellationData.getAll()));
+            ((ConstellationViewHolder) holder).mLoveRating.setRating(Utils.getRatingFromPercent(mConstellationData.getLove()));
+            ((ConstellationViewHolder) holder).mWorkRating.setRating(Utils.getRatingFromPercent(mConstellationData.getWork()));
+            ((ConstellationViewHolder) holder).mMoneyRating.setRating(Utils.getRatingFromPercent(mConstellationData.getMoney()));
+            ((ConstellationViewHolder) holder).mConsFriendText.setText(
+                    String.format("贵人星座: %s", mConstellationData.getQFriend())
+            );
+            ((ConstellationViewHolder) holder).mConsColorText.setText(
+                    String.format("幸运颜色: %s", mConstellationData.getColor())
+            );
+            ((ConstellationViewHolder) holder).mConsNumberText.setText(
+                    String.format("幸运数字: %s", mConstellationData.getNumber())
+            );
+        }
+
     }
 
     public void updateData(WeatherBean weatherData) {
@@ -288,7 +341,7 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * ViewHolder
      * 简略的未来几天的天气
      */
-    class FutureWeatherViewHolder extends RecyclerView.ViewHolder {
+    static class FutureWeatherViewHolder extends RecyclerView.ViewHolder {
 
 //        private LinearLayout mLinearLayout;
 //        private TextView[] mDailyDateTexts = new TextView[5];
@@ -351,7 +404,7 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * ViewHolder
      * 实时信息
      */
-    class NowWeatherViewHolder extends RecyclerView.ViewHolder {
+    static class NowWeatherViewHolder extends RecyclerView.ViewHolder {
 
         private TextView mFlText;
         private TextView mWindText;
@@ -375,7 +428,7 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * ViewHolder
      * 生活指数
      */
-    class SuggestionViewHolder extends RecyclerView.ViewHolder {
+    static class SuggestionViewHolder extends RecyclerView.ViewHolder {
 
         private TextView mDrsgText;
         private TextView mFluText;
@@ -399,7 +452,7 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * ViewHolder
      * 黄历
      */
-    class HuangLiViewHolder extends RecyclerView.ViewHolder {
+    static class HuangLiViewHolder extends RecyclerView.ViewHolder {
 
         private TextView mYangYinLiText;
         private TextView mYiText;
@@ -416,6 +469,34 @@ public class BasicRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mWuXingText = (TextView) itemView.findViewById(R.id.wu_xing_text);
             mBaiJiText = (TextView)itemView.findViewById(R.id.bai_ji_text);
             mChongShaText = (TextView) itemView.findViewById(R.id.chong_sha_text);
+        }
+    }
+
+    static class ConstellationViewHolder extends RecyclerView.ViewHolder {
+
+        private ImageView mConsImg;
+        private TextView mConsNameText;
+        private TextView mConsSummaryText;
+        private RatingBar mAllRating;
+        private RatingBar mLoveRating;
+        private RatingBar mWorkRating;
+        private RatingBar mMoneyRating;
+        private TextView mConsFriendText;
+        private TextView mConsColorText;
+        private TextView mConsNumberText;
+
+        public ConstellationViewHolder(View itemView) {
+            super(itemView);
+            mConsImg = (ImageView) itemView.findViewById(R.id.cons_img);
+            mConsNameText = (TextView) itemView.findViewById(R.id.cons_name_text);
+            mConsSummaryText = (TextView) itemView.findViewById(R.id.cons_summary_text);
+            mAllRating = (RatingBar) itemView.findViewById(R.id.cons_all_rating);
+            mLoveRating = (RatingBar) itemView.findViewById(R.id.cons_love_rating);
+            mWorkRating = (RatingBar) itemView.findViewById(R.id.cons_work_rating);
+            mMoneyRating = (RatingBar) itemView.findViewById(R.id.cons_money_rating);
+            mConsFriendText = (TextView) itemView.findViewById(R.id.cons_friend_text);
+            mConsColorText = (TextView) itemView.findViewById(R.id.cons_color_text);
+            mConsNumberText = (TextView) itemView.findViewById(R.id.cons_number_text);
         }
     }
 

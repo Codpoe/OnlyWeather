@@ -19,13 +19,29 @@ import me.codpoe.onlyweather.R;
 public class DialogUtils {
 
     // 帮助 ManageActivity help
-    public static void showHelp(Context context) {
+    public static void showManageHelp(Context context) {
         new AlertDialog.Builder(context)
                 .setCancelable(true)
                 .setTitle("帮助")
                 .setMessage("- 长按 可以拖拽天气卡片，并改变其位置。\n\n" +
                         "- 左右滑动 可以删除天气卡片。\n\n" +
                         "- 排在第一位的城市，将会在首页中展示。")
+                .setNegativeButton("关闭", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
+    }
+
+    public static void showSettingHelp(Context context) {
+        new AlertDialog.Builder(context)
+                .setCancelable(true)
+                .setTitle("帮助")
+                .setMessage("- 显示通知栏天气\n" +
+                        "- 添加或关闭卡片\n\n" +
+                        "以上操作都需要在首页下拉刷新才能看到效果")
                 .setNegativeButton("关闭", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -44,7 +60,7 @@ public class DialogUtils {
                         "写这个小小小的天气应用，只是为了学习、练手 -_-|| 但由于本人目前的开发姿势不高，" +
                         "所以投入了大量的课余时间，" +
                         "希望能有喜欢它的人。\n\n" +
-                        "当然，如果你有任何意见或者发现 BUG，欢迎在 Github 项目地址提 issue，或者通过微博和邮件联系我。\n\n" +
+                        "当然，如果你有任何意见或者发现 BUG，欢迎在 Github 项目地址提 Issue，或者通过微博和邮件联系我。\n\n" +
                         "最后，感谢你的下载 :-D")
                 .setNegativeButton("关闭", new DialogInterface.OnClickListener() {
                     @Override
@@ -101,7 +117,7 @@ public class DialogUtils {
         new AlertDialog.Builder(context)
                 .setCancelable(true)
                 .setTitle("支持")
-                .setMessage("如果你觉得这款小小的 App 还不错的话，可以请我喝杯茶>_<（即系打赏）")
+                .setMessage("如果你觉得这款小小的 App 不错、还行、甚至不太差的话，可以请我喝杯茶>_<（即系打赏）")
                 .setPositiveButton("复制账号并打开支付宝", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -128,22 +144,34 @@ public class DialogUtils {
                 }).show();
     }
 
+    // 数据来源
+    public static void showDataSource(Context context) {
+        View view = LayoutInflater.from(context).inflate(R.layout.data_source, null);
+        new AlertDialog.Builder(context)
+                .setCancelable(true)
+                .setView(view)
+                .setNegativeButton("关闭", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
+    }
+
     // 开源库 open source dialog
     public static void showOpenSource(Context context) {
         new AlertDialog.Builder(context)
                 .setCancelable(true)
-                .setTitle("用到的开源库")
-                .setMessage("appcompat-v7:23.2.1\n" +
-                        "design:23.2.1\n" +
-                        "cardview-v7:23.2.1\n" +
-                        "rxjava:1.0.14\n" +
-                        "rxandroid:1.0.1\n" +
-                        "retrofit2:retrofit:2.0.2\n" +
-                        "retrofit2:converter-gson:2.0.2\n" +
-                        "retrofit2:adapter-rxjava:2.0.2\n" +
-                        "glide:glide:3.7.0\n" +
-                        "otto:1.3.8\n\n" +
-                        "感谢开源")
+                .setTitle("感谢以下开源项目的支持")
+                .setMessage("Google Design Support Library\n" +
+                        "RxJava\n" +
+                        "RxAndroid\n" +
+                        "Retrofit\n" +
+                        "Glide\n" +
+                        "Otto\n" +
+                        "AndroidViewAnimations\n" +
+                        "recyclerview-animators\n")
                 .setNegativeButton("关闭", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

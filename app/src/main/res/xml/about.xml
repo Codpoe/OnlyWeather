@@ -42,14 +42,14 @@
     <PreferenceCategory android:title="关于资源">
 
         <Preference
-            android:key="weather_api"
+            android:key="data_source"
             android:title="数据来源"
-            android:summary="感谢和风天气提供的天气服务"/>
+            android:summary="天气、黄历、星座等数据的来源"/>
 
         <Preference
-            android:key="image"
+            android:key="img_source"
             android:title="图片来源"
-            android:summary="仅仅天气的图片均搜集自 Zedge\n-- 一款高质量的壁纸应用"/>
+            android:summary="图片搜集自 Backdrops -- 高质量的壁纸应用"/>
 
     </PreferenceCategory>
 

@@ -9,6 +9,7 @@
     android:paddingEnd="10dp">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/manage_rv_item_card"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_margin="6dp"

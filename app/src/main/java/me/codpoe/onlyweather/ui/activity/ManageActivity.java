@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -14,12 +15,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -31,12 +34,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import jp.wasabeef.recyclerview.adapters.SlideInRightAnimationAdapter;
 import me.codpoe.onlyweather.R;
-import me.codpoe.onlyweather.ui.adapter.ManageRvAdapter;
 import me.codpoe.onlyweather.db.OnlyWeatherDB;
 import me.codpoe.onlyweather.httpUtil.HttpMethods;
 import me.codpoe.onlyweather.model.City;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
+import me.codpoe.onlyweather.ui.adapter.ManageRvAdapter;
 import me.codpoe.onlyweather.util.DialogUtils;
 import rx.Observable;
 import rx.Subscriber;
@@ -45,7 +49,7 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class ManageActivity extends AppCompatActivity implements View.OnClickListener,
-        android.support.v7.widget.Toolbar.OnMenuItemClickListener{
+        android.support.v7.widget.Toolbar.OnMenuItemClickListener {
 
     public static final String TAG = "ManageActivity";
 
@@ -84,7 +88,7 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
         // RefreshLayout
         mRefreshLay.setColorSchemeResources(R.color.colorPrimary,
                 android.R.color.holo_orange_dark,
-                android.R.color.holo_blue_dark,
+                android.R.color.holo_purple,
                 android.R.color.holo_green_dark);
         mRefreshLay.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -97,9 +101,34 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
         // RecyclerView
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRvAdapter = new ManageRvAdapter(ManageActivity.this, mWeatherDataList);
-        mRecyclerView.setAdapter(mRvAdapter);
+        SlideInRightAnimationAdapter slideAdapter = new SlideInRightAnimationAdapter(mRvAdapter);
+        slideAdapter.setFirstOnly(false);
+        mRecyclerView.setAdapter(slideAdapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new CodpoeItemTouchHelper());
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
+        mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
+        mRecyclerView.addOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dx < 0) {
+                    mFloatingBtn.show();
+                } else if (dx > 0) {
+                    mFloatingBtn.hide();
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+
+
+            }
+        });
 
 
         // FloatingActionButton
@@ -112,7 +141,7 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
         mProgressDialog.setMessage("正在加载...");
 
         // 进入 ManageActivity 时做的事情
-        mProgressDialog.show();
+//        mProgressDialog.show();
         showWeatherFromPrefs();
 
     }
@@ -252,6 +281,7 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
      */
     public void refreshData() {
         mWeatherDataList.clear();
+        mRvAdapter.notifyDataSetChanged();
         Observable.from(mCityList)
                 .concatMap(new Func1<City, Observable<WeatherBean>>() {
                     @Override
@@ -265,7 +295,6 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onCompleted() {
                         if (mWeatherDataList.size() > 0) {
-                            mRvAdapter.updateData(mWeatherDataList);
                             saveWeatherListToPrefs(mWeatherDataList);
                             mRefreshLay.setRefreshing(false);
                             Snackbar.make(mCoordinatorLayout, "刷新成功", Snackbar.LENGTH_SHORT).show();
@@ -285,6 +314,7 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
                     public void onNext(WeatherBean weatherBean) {
                         if (weatherBean != null) {
                             mWeatherDataList.add(weatherBean);
+                            mRvAdapter.notifyItemInserted(mWeatherDataList.size() - 1);
                         }
                     }
                 });
@@ -299,19 +329,22 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
     public void showWeatherFromPrefs() {
         mCityList.clear();
         mWeatherDataList.clear();
+        mRvAdapter.notifyDataSetChanged();
+
         Observable.create(new Observable.OnSubscribe<List<WeatherBean>>() {
             @Override
             public void call(Subscriber<? super List<WeatherBean>> subscriber) {
                 Log.d(TAG, "showWeatherFromPrefs start");
-                if (getWeatherListFromPrefs() != null) {
-                    mWeatherDataList = getWeatherListFromPrefs();
-                    for (int i = 0; i < mWeatherDataList.size(); i++) {
+                List<WeatherBean> list = getWeatherListFromPrefs();
+                if (list != null && list.size() > 0) {
+                    for (int i = 0; i < list.size(); i++) {
                         City city = new City();
-                        city.setCityName(mWeatherDataList.get(i).getHeWeatherDataService().get(0).getBasic().getCity());
+                        city.setCityName(list.get(i).getHeWeatherDataService().get(0).getBasic().getCity());
                         mCityList.add(city);
+                        Log.d(TAG, "show 0");
                     }
                 }
-                subscriber.onNext(mWeatherDataList);
+                subscriber.onNext(list);
             }
         })
                 .subscribeOn(Schedulers.io())
@@ -319,7 +352,7 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
                 .subscribe(new Subscriber<List<WeatherBean>>() {
                     @Override
                     public void onCompleted() {
-                        mProgressDialog.dismiss();
+
                     }
 
                     @Override
@@ -330,9 +363,15 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
 
                     @Override
                     public void onNext(List<WeatherBean> list) {
+                        Log.d(TAG, "show 1");
                         if (list != null && list.size() > 0) {
                             mProgressDialog.dismiss();
-                            mRvAdapter.updateData(list);
+                            mWeatherDataList.clear();
+                            mRvAdapter.notifyDataSetChanged();
+                            for (int i = 0; i < list.size(); i++) {
+                                mWeatherDataList.add(list.get(i));
+                                mRvAdapter.notifyItemInserted(mWeatherDataList.size() - 1);
+                            }
                             Snackbar.make(mCoordinatorLayout, "加载完成", Snackbar.LENGTH_SHORT).show();
                         } else {
                             mProgressDialog.dismiss();
@@ -403,7 +442,7 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
     public void saveShowCityToPrefs(String cityName) {
         SharedPreferences.Editor editor = getSharedPreferences("show_city_prefs", MODE_PRIVATE).edit();
         editor.putString("show_city", cityName);
-        editor.commit();
+        editor.apply();
     }
 
     // Toolbar 上的菜单项 Toolbar menu item click
@@ -411,7 +450,7 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.manage_help:
-                DialogUtils.showHelp(ManageActivity.this);
+                DialogUtils.showManageHelp(ManageActivity.this);
                 break;
         }
         return false;
@@ -468,14 +507,11 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
             int position = viewHolder.getAdapterPosition();
-            Log.d(TAG, "swipe0");
             mWeatherDataList.remove(position);
             mRvAdapter.notifyItemRemoved(position);
-            Log.d(TAG, "swipe1");
             Snackbar.make(mCoordinatorLayout, "删除 " +mCityList.get(position).getCityName() + " 成功"
                             , Snackbar.LENGTH_SHORT)
                     .show();
-            Log.d(TAG, "swipe2");
             mCityList.remove(position);
             saveWeatherListToPrefs(mWeatherDataList);
         }
@@ -483,7 +519,11 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
         @Override
         public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
             if(actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-                viewHolder.itemView.setBackgroundColor(Color.LTGRAY);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    viewHolder.itemView.findViewById(R.id.manage_rv_item_card).setElevation(40f);
+                } else {
+                    viewHolder.itemView.findViewById(R.id.manage_rv_item_card).setBackgroundColor(Color.LTGRAY);
+                }
             }
             super.onSelectedChanged(viewHolder, actionState);
         }
@@ -491,8 +531,14 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
         @Override
         public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             super.clearView(recyclerView, viewHolder);
-            viewHolder.itemView.setBackgroundColor(0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                viewHolder.itemView.findViewById(R.id.manage_rv_item_card).setElevation(6f);
+            } else {
+                viewHolder.itemView.findViewById(R.id.manage_rv_item_card).setBackgroundResource(R.color.cardview_light_background);
+            }
         }
     }
+
+
 
 }

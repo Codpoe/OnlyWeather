@@ -19,6 +19,13 @@
             android:entries="@array/setting_entries_auto_update"
             android:entryValues="@array/setting_entry_values_auto_update"/>
 
+        <CheckBoxPreference
+            android:key="is_show_notification"
+            android:title="通知栏天气"
+            android:defaultValue="true"
+            android:summaryOn="已在通知栏显示天气，可下拉查看"
+            android:summaryOff="已关闭通知栏天气"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="一览">
@@ -30,6 +37,20 @@
             android:summaryOff="已关闭，不会显示黄历卡片"
             android:summaryOn="已添加，将会显示黄历卡片"/>
 
+        <CheckBoxPreference
+            android:key="is_show_cons"
+            android:title="显示星座卡片"
+            android:defaultValue="false"
+            android:summaryOff="已关闭，不会显示星座卡片"
+            android:summaryOn="已添加，将会显示星座卡片"/>
+
+        <ListPreference
+            android:key="selected_cons"
+            android:title="星座"
+            android:dependency="is_show_cons"
+            android:defaultValue="白羊座"
+            android:entries="@array/setting_entries_cons"
+            android:entryValues="@array/setting_entries_cons"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

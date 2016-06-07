@@ -9,65 +9,65 @@ import android.widget.TextView;
 
 import me.codpoe.onlyweather.R;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
-import me.codpoe.onlyweather.util.DateToWeek;
+import me.codpoe.onlyweather.util.Utils;
 
 /**
  * Created by Codpoe on 2016/5/22.
  */
-public class MoreRvAdapter extends RecyclerView.Adapter {
+public class ForecastRvAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
     private WeatherBean mWeathrData;
 
-    public MoreRvAdapter(Context context, WeatherBean weatherBean) {
+    public ForecastRvAdapter(Context context, WeatherBean weatherBean) {
         mContext = context;
         mWeathrData = weatherBean;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new MoreViewHolder(LayoutInflater.from(mContext)
-                        .inflate(R.layout.more_rv_item, parent, false));
+        return new ForecastViewHolder(LayoutInflater.from(mContext)
+                        .inflate(R.layout.forecast_rv_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         try {
-            ((MoreViewHolder) holder).mWeekText.setText(
+            ((ForecastViewHolder) holder).mWeekText.setText(
                     String.format("%s",
-                            DateToWeek.dateToWeek(mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
+                            Utils.dateToWeek(mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
                                     .get(position).getDate()))
             );
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        ((MoreViewHolder) holder).mCondText.setText(
+        ((ForecastViewHolder) holder).mCondText.setText(
                 String.format("%s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
                         .get(position).getCond().getTxtD())
         );
-        ((MoreViewHolder) holder).mTmpText.setText(
+        ((ForecastViewHolder) holder).mTmpText.setText(
                 String.format("%s ~ %s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
                                 .get(position).getTmp().getMin(),
                         mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
                                 .get(position).getTmp().getMax())
         );
 
-        ((MoreViewHolder) holder).mHumText.setText(
+        ((ForecastViewHolder) holder).mHumText.setText(
                 String.format("湿度: %s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
                         .get(position).getHum())
         );
-        ((MoreViewHolder) holder).mWindText.setText(
+        ((ForecastViewHolder) holder).mWindText.setText(
                 String.format("%s %s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
                                 .get(position).getWind().getDir(),
                         mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
                                 .get(position).getWind().getSc())
         );
-        ((MoreViewHolder) holder).mRainText.setText(
+        ((ForecastViewHolder) holder).mRainText.setText(
                 String.format("降水概率: %s", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
                         .get(position).getPop())
         );
-        ((MoreViewHolder) holder).mVisText.setText(
+        ((ForecastViewHolder) holder).mVisText.setText(
                 String.format("能见度: %s km", mWeathrData.getHeWeatherDataService().get(0).getDailyForecast()
                         .get(position).getVis())
         );
@@ -78,7 +78,7 @@ public class MoreRvAdapter extends RecyclerView.Adapter {
         return mWeathrData.getHeWeatherDataService().get(0).getDailyForecast().size();
     }
 
-    class MoreViewHolder extends RecyclerView.ViewHolder{
+    static class ForecastViewHolder extends RecyclerView.ViewHolder{
 
         private TextView mWeekText;
         private TextView mCondText;
@@ -88,15 +88,15 @@ public class MoreRvAdapter extends RecyclerView.Adapter {
         private TextView mRainText;
         private TextView mVisText;
 
-        public MoreViewHolder(View itemView) {
+        public ForecastViewHolder(View itemView) {
             super(itemView);
-            mWeekText = (TextView) itemView.findViewById(R.id.more_date_text);
-            mCondText = (TextView) itemView.findViewById(R.id.more_cond_text);
-            mTmpText = (TextView) itemView.findViewById(R.id.more_tmp_text);
-            mHumText = (TextView) itemView.findViewById(R.id.more_hum_text);
-            mWindText = (TextView) itemView.findViewById(R.id.more_wind_text);
-            mRainText = (TextView) itemView.findViewById(R.id.more_rain_text);
-            mVisText = (TextView) itemView.findViewById(R.id.more_vis_text);
+            mWeekText = (TextView) itemView.findViewById(R.id.forecast_date_text);
+            mCondText = (TextView) itemView.findViewById(R.id.forecast_cond_text);
+            mTmpText = (TextView) itemView.findViewById(R.id.forecast_tmp_text);
+            mHumText = (TextView) itemView.findViewById(R.id.forecast_hum_text);
+            mWindText = (TextView) itemView.findViewById(R.id.forecast_wind_text);
+            mRainText = (TextView) itemView.findViewById(R.id.forecast_rain_text);
+            mVisText = (TextView) itemView.findViewById(R.id.forecast_vis_text);
         }
     }
 

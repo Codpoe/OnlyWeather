@@ -18,7 +18,7 @@ Material Design + RxJava + Retrofit + Glide + Otto
 #### TODO
 - ~~不同的天气状况，可自动替换相应的首页背景图~~
 - ~~初级定位功能~~
-- 
+- 完善定位功能
 - ...
 
 #### 已知的 BUG

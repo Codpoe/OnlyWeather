@@ -23,9 +23,10 @@ public class DialogUtils {
         new AlertDialog.Builder(context)
                 .setCancelable(true)
                 .setTitle("帮助")
-                .setMessage("- 长按 可以拖拽天气卡片，并改变其位置。\n\n" +
-                        "- 左右滑动 可以删除天气卡片。\n\n" +
-                        "- 排在第一位的城市，将会在首页中展示。")
+                .setMessage("- 长按 可拖拽天气卡片，并改变其位置。\n\n" +
+                        "- 左右滑动 可删除天气卡片。\n\n" +
+                        "- 排在第一位的城市，将在首页中展示。\n\n" +
+                        "注：正在首页展示的城市，删除无效。")
                 .setNegativeButton("关闭", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -76,7 +77,7 @@ public class DialogUtils {
         new AlertDialog.Builder(context)
                 .setCancelable(true)
                 .setTitle("点赞")
-                .setMessage("点击 确定，将会跳转到 仅仅天气 的项目地址。")
+                .setMessage("点击确定，将会跳转到 仅仅天气 的项目地址。")
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

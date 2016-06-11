@@ -13,10 +13,8 @@ import me.codpoe.onlyweather.model.entity.VersionBean;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
 import me.codpoe.onlyweather.util.NetUtils;
 import okhttp3.Cache;
-import okhttp3.CacheControl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -42,56 +40,47 @@ public class HttpMethods {
     private Retrofit mRetrofit;
     private Api mApi;
 
+    // Interceptor
+    private static final Interceptor INTERCEPTOR = new Interceptor() {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Response originalResponse = chain.proceed(chain.request());
+            if (NetUtils.isConnected(BaseApplication.getAppContext())) {
+                int maxAge = 60;
+                return originalResponse.newBuilder()
+                        .removeHeader("Pragma")
+                        .removeHeader("Cache-Control")
+                        .header("Cache-Control", "public, max-age=" + maxAge)
+                        .build();
+            } else {
+                int maxStale = 60 * 60 * 24 * 28;
+                return originalResponse.newBuilder()
+                        .removeHeader("Pragma")
+                        .removeHeader("Cache-Control")
+                        .header("Cache-Control", "public, only-if-cached, max-stale=" + maxStale)
+                        .build();
+            }
+        }
+    };
+
+    // Cache
+    private static File cacheFile = new File(BaseApplication.getAppContext().getCacheDir(), "weatherCache");
+    private static int cacheSize = 10 * 1024 * 1024;
+    private static Cache cache = new Cache(cacheFile, cacheSize);
+
+    // OkHttp
+    private static OkHttpClient sClient = new OkHttpClient.Builder()
+            .addNetworkInterceptor(INTERCEPTOR)
+            .addInterceptor(INTERCEPTOR)
+            .cache(cache)
+            .build();
 
     // 构造方法私有化
     private HttpMethods() {
-
-        // 拦截器
-        Interceptor interceptor = new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-
-                Request request = chain.request();
-
-                if(!NetUtils.isConnected(BaseApplication.getAppContext())) {
-                    request = request.newBuilder()
-                            .cacheControl(CacheControl.FORCE_CACHE)
-                            .build();
-                }
-
-                Response response = chain.proceed(request);
-
-                if(NetUtils.isConnected(BaseApplication.getAppContext())) {
-                    String cacheControl = request.cacheControl().toString();
-                    return response.newBuilder()
-                            .header("Cache-Control", cacheControl)
-                            .removeHeader("Pragma")
-                            .build();
-                } else {
-                    return response.newBuilder()
-                            .header("Cache-Control", "public, only-if-cached, max-stale=2419200")
-                            .removeHeader("Pragma")
-                            .build();
-                }
-            }
-        };
-
-        // Cache
-        File cacheFile = new File(BaseApplication.getAppContext().getCacheDir(), "weatherCache");
-        int cacheSize = 10 * 1024 * 1024;
-        Cache cache = new Cache(cacheFile, cacheSize);
-
-        // OkHttpClient
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addNetworkInterceptor(interceptor)
-                .cache(cache)
-                .build();
-
-
         // Retrofit
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
-//                .client(client)
+                .client(sClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();

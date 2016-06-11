@@ -88,4 +88,14 @@ public class Utils {
         }
         return 2.5f;
     }
+
+    // 正则表达式过滤高德地图定位获取的城市中的“市”，例如：从“广州市”中去掉“市”
+    public static String getCityNameFromAMap(String cityName) {
+        Pattern p = Pattern.compile("[\u5e02]");
+        Matcher m = p.matcher(cityName);
+        if (m.find()) {
+            return m.replaceAll("");
+        }
+        return cityName;
+    }
 }

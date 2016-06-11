@@ -29,6 +29,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.nineoldandroids.animation.Animator;
@@ -51,8 +55,10 @@ import me.codpoe.onlyweather.service.AutoUpdateService;
 import me.codpoe.onlyweather.ui.adapter.MainFragmentAdapter;
 import me.codpoe.onlyweather.ui.fragment.BasicFragment;
 import me.codpoe.onlyweather.ui.fragment.ForecastFragment;
+import me.codpoe.onlyweather.util.PrefsUtils;
 import me.codpoe.onlyweather.util.ScreenShotUtils;
 import me.codpoe.onlyweather.util.SettingUtils;
+import me.codpoe.onlyweather.util.Utils;
 import me.codpoe.onlyweather.util.VersionUtils;
 import rx.Observable;
 import rx.Subscriber;
@@ -66,7 +72,8 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity
         implements View.OnClickListener,
         ViewPager.OnTouchListener,
-        Toolbar.OnMenuItemClickListener {
+        Toolbar.OnMenuItemClickListener,
+        AMapLocationListener{
 
     private DrawerLayout mMainDrawerLayout;
     private SwipeRefreshLayout mRefreshLayout;
@@ -90,10 +97,16 @@ public class MainActivity extends AppCompatActivity
     private ForecastFragment mForecastFragment;
     private MainFragmentAdapter mMainFragmentAdapter;
 
+    // 数据相关
     private WeatherBean mWeatherData;
     private HuangLiBean mHuangLiData;
     private ConstellationBean mConstellationData;
 
+    // 高德地图定位服务
+    public AMapLocationClient mLocationClient = null;
+    public AMapLocationClientOption mLocationOption = null;
+
+    // 再按一次退出
     private boolean mIsExit = false;
 
     @Override
@@ -277,7 +290,7 @@ public class MainActivity extends AppCompatActivity
      * 从网络获取天气数据并更新 UI
      */
     public void getWeather() {
-        String cityName = getShowCityFromPrefs();
+        String cityName = PrefsUtils.getShowCityFromPrefs(this);
         if(!cityName.equals("")) {
             HttpMethods.getInstance().getWeatherData(new Subscriber<WeatherBean>() {
                 @Override
@@ -307,8 +320,9 @@ public class MainActivity extends AppCompatActivity
                     mMainTmpText.setText(mWeatherData.getHeWeatherDataService().get(0).getNow().getTmp());
                     mMainCondText.setText(mWeatherData.getHeWeatherDataService().get(0).getNow().getCond().getTxt());
                     mForecastFragment.setWeatherData(mWeatherData);
-                    setBackgroud(mWeatherData);
+                    setBackground(mWeatherData);
                     showNotification(mWeatherData);
+                    PrefsUtils.saveShowWeatherToPrefs(MainActivity.this, mWeatherData);
                 }
             }, cityName);
         } else {
@@ -331,7 +345,7 @@ public class MainActivity extends AppCompatActivity
         mMainCondText.setText(weatherBean.getHeWeatherDataService().get(0).getNow().getCond().getTxt());
         mBasicFragment.setWeatherData(weatherBean, mHuangLiData, mConstellationData);
         mForecastFragment.setWeatherData(weatherBean);
-        setBackgroud(weatherBean);
+        setBackground(weatherBean);
         showNotification(weatherBean);
     }
 
@@ -411,18 +425,14 @@ public class MainActivity extends AppCompatActivity
         mProgressDialog.setMessage("正在加载...");
         mProgressDialog.show();
 
-        if(!getShowCityFromPrefs().equals("")) {
-            getWeather();
-        } else {
-            mProgressDialog.dismiss();
-            Snackbar.make(mCoordinatorLayout, "暂无数据，请先添加城市", Snackbar.LENGTH_SHORT);
-        }
+        location();
+
     }
 
     /**
      * 判断当前时间和天气状况，并据此更换背景
      */
-    public void setBackgroud(WeatherBean weatherData) {
+    public void setBackground(WeatherBean weatherData) {
         Calendar c = Calendar.getInstance();
         String cond = weatherData.getHeWeatherDataService().get(0).getNow().getCond().getTxt();
 
@@ -552,6 +562,71 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private void location() {
+        //初始化定位
+        mLocationClient = new AMapLocationClient(getApplicationContext());
+        //设置定位回调监听
+        mLocationClient.setLocationListener(this);
+        mLocationOption = new AMapLocationClientOption();
+        //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
+        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Battery_Saving);
+        //设置是否返回地址信息（默认返回地址信息）
+        mLocationOption.setNeedAddress(true);
+        //设置是否只定位一次,默认为false
+        mLocationOption.setOnceLocation(true);
+        //设置是否强制刷新WIFI，默认为强制刷新
+        mLocationOption.setWifiActiveScan(true);
+        //设置是否允许模拟位置,默认为false，不允许模拟位置
+        mLocationOption.setMockEnable(false);
+        //设置定位间隔 单位毫秒
+        int tempTime = SettingUtils.getInstance().getAutoUpdate();
+        if (tempTime == 0) {
+            tempTime = 60 * 60 * 1000;
+        }
+        mLocationOption.setInterval(tempTime);
+        //给定位客户端对象设置定位参数
+        mLocationClient.setLocationOption(mLocationOption);
+        //启动定位
+        mLocationClient.startLocation();
+    }
+
+    @Override
+    public void onLocationChanged(AMapLocation aMapLocation) {
+        if (aMapLocation != null) {
+            Log.d("MainActivity", aMapLocation.getErrorCode() + aMapLocation.getErrorInfo());
+            if (aMapLocation.getErrorCode() == 0) {
+                //定位成功回调信息，设置相关消息
+                aMapLocation.getLocationType();//获取当前定位结果来源，如网络定位结果，详见定位类型表
+                PrefsUtils.saveLocationCity(this, Utils.getCityNameFromAMap(aMapLocation.getCity()));
+                Log.d("MainActivity", Utils.getCityNameFromAMap(aMapLocation.getCity()));
+                if (PrefsUtils.getShowCityFromPrefs(this).equals("")) {
+                    PrefsUtils.saveShowCityToPrefs(this, Utils.getCityNameFromAMap(aMapLocation.getCity()));
+                }
+                getWeather();
+                Log.d("MainActivity", "location 2");
+            } else {
+                mProgressDialog.dismiss();
+                Snackbar.make(mCoordinatorLayout, "定位失败，请检查网络配置", Snackbar.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * 保存定位城市
+     */
+    public void saveLocationCity(String cityName) {
+        SharedPreferences.Editor editor = getSharedPreferences("location_city_prefs", MODE_PRIVATE).edit();
+        editor.putString("location_city", cityName).apply();
+    }
+
+    /**
+     * 获取已保存的定位城市
+     */
+    public String getLocationCity() {
+        SharedPreferences prefs = getSharedPreferences("location_city_prefs", MODE_PRIVATE);
+        return prefs.getString("location_city", "");
+    }
+
     /**
      * 获取已保存的首页展示的城市
      * @return
@@ -561,7 +636,12 @@ public class MainActivity extends AppCompatActivity
         return prefs.getString("show_city", "");
     }
 
-    // ViewPager 和 SwipeRefreshLayout 的滑动冲突
+    /**
+     * ViewPager 和 SwipeRefreshLayout 的滑动冲突
+     * @param v
+     * @param event
+     * @return
+     */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
@@ -601,7 +681,7 @@ public class MainActivity extends AppCompatActivity
                             startActivity(Intent.createChooser(intent, "分享"));
                         }
                     }
-                    
+
                 });
     }
 

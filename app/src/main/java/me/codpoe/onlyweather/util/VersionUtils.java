@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
+import java.text.DecimalFormat;
+
 import me.codpoe.onlyweather.base.BaseApplication;
 import me.codpoe.onlyweather.httpUtil.HttpMethods;
 import me.codpoe.onlyweather.model.entity.VersionBean;
@@ -87,11 +89,12 @@ public class VersionUtils {
 
     // 展示新版本的相关信息
     public static void showNewVersion(final Context context, final VersionBean versionBean) {
+        DecimalFormat decimalFormat = new DecimalFormat(".0");
         new AlertDialog.Builder(context)
                 .setTitle("发现新版本")
                 .setMessage("最新版本: " + versionBean.getVersionShort() + "\n" +
-                            "新版本大小: " + (float)versionBean.getBinary().getFsize() / 1024 / 1024 + " M\n\n" +
-                            versionBean.getChangelog())
+                        "新版本大小: " + versionBean.getBinary().getFsize() / 1024 / 1024 + " M\n\n" +
+                        versionBean.getChangelog())
                 .setPositiveButton("下载", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -100,8 +103,8 @@ public class VersionUtils {
                         intent.setAction(Intent.ACTION_VIEW);
                         intent.setData(uri);
                         context.startActivity(intent);
-                    }
-                })
+            }
+        })
                 .setNegativeButton("以后再说", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

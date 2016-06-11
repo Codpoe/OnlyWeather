@@ -42,6 +42,7 @@ import me.codpoe.onlyweather.model.City;
 import me.codpoe.onlyweather.model.entity.WeatherBean;
 import me.codpoe.onlyweather.ui.adapter.ManageRvAdapter;
 import me.codpoe.onlyweather.util.DialogUtils;
+import me.codpoe.onlyweather.util.PrefsUtils;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -307,7 +308,7 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onError(Throwable e) {
                         mRefreshLay.setRefreshing(false);
-                        Snackbar.make(mCoordinatorLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(mCoordinatorLayout, "刷新失败，请检查网络配置", Snackbar.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -343,6 +344,25 @@ public class ManageActivity extends AppCompatActivity implements View.OnClickLis
                         mCityList.add(city);
                         Log.d(TAG, "show 0");
                     }
+                }
+
+                // 判断首页展示的天气是否已存在于【管理城市】中
+                WeatherBean weatherBean = PrefsUtils.getShowWeatherFromPrefs(ManageActivity.this);
+                City city = new City();
+                city.setCityName(weatherBean.getHeWeatherDataService().get(0).getBasic().getCity());
+
+                List<String> stringList = new ArrayList<String>();
+                for (int i = 0; i < mCityList.size(); i ++) {
+                    stringList.add(mCityList.get(i).getCityName());
+                }
+
+                if (list == null) {
+                    list = new ArrayList<WeatherBean>();
+                    list.add(weatherBean);
+                    mCityList.add(city);
+                } else if (!stringList.contains(city.getCityName())) {
+                    list.add(PrefsUtils.getShowWeatherFromPrefs(ManageActivity.this));
+                    mCityList.add(city);
                 }
                 subscriber.onNext(list);
             }

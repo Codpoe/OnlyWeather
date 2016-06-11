@@ -10,6 +10,13 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
 
+    <!--用于进行网络定位-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+    <!--用于访问GPS定位-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+    <!--这个权限用于获取wifi的获取权限，wifi信息会用来进行网络定位-->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -35,7 +42,11 @@
         <service android:name=".service.AutoUpdateService">
         </service>
 
+        <service android:name="com.amap.api.location.APSService"></service>
+
         <meta-data android:value="5422c2e454fa5f333b89793a2039f173" android:name="BUG_HD_SDK_GENERAL_KEY" />
+        <meta-data android:name="com.amap.api.v2.apikey" android:value="5bcec05e477a04272bdd08ce6413feb3" />
+
     </application>
 
 </manifest>
